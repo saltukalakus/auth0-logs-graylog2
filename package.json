@@ -1,0 +1,18 @@
+{
+  "name": "auth0-logs-transport",
+  "version": "1.0.0",
+  "description": "Auth0 logs to a winston transport",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "Saltuk Alakus",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv-safe": "^4.0.3",
+    "memory-cache": "^0.1.6",
+    "request": "^2.79.0",
+    "sleep": "^5.1.0",
+    "winston": "^2.3.1"
+  }
+}
