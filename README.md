@@ -20,8 +20,13 @@ Note that, inorder to receive logs from Auth0, you need to set `read:logs` scope
     * GREYLOG2_HOST : Greylog2 server host name, E.g. 127.0.0.1
     * GREYLOG2_PORT : Port for Greylog2 server.
     * GREYLOG2_BUFFERSIZE : UDP packet size most of the time 1400 is OK.
-    * GREYLOG2_ENABLE : Setting this to `false` to disable Greylog2 logging.
-    * FILELOG_ENABLE : Setting this to `false` to disable file logging.
+    * GREYLOG2_ENABLE : Setting this to `false` disables Greylog2 logging.
+    * FILELOG_ENABLE : Setting this to `false` disables file logging.
+
+## Limitations
+* Currently for Greylog2 transport this project supports one host to configure. If you need to set multiple hosts, you need to pass the host array manually in the code.
+* Last stored log's id is not retrieved from transport, so if you restart the app, it will start from the first available log in Auth0 if `START_FROM_ID` is set as null.
+* You could use PM2 or Forever packages to run the application in production environments. However don't run multiple instance of the application in that case.
 
 ## Usage
 ```bash
