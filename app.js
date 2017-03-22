@@ -17,7 +17,7 @@ var   grayLogDebugLevel  = 'info';
 var   fileLogDebugLevel  = 'info';
 
 // This basically disables the log to GREYLOG2
-if (String(process.env.GREYLOG2_ENABLE).toLowerCase() == `false`) {
+if (String(process.env.GRAYLOG2_ENABLE).toLowerCase() == `false`) {
   grayLogDebugLevel  = 'error';
 } 
 
@@ -49,9 +49,9 @@ const logger = new (winston.Logger)({
       handleExceptions: true,
       exceptionsLevel: 'debug',
       graylog: {
-        servers: [{host: process.env.GREYLOG2_HOST, port: process.env.GREYLOG2_PORT}],
+        servers: [{host: process.env.GRAYLOG2_HOST, port: process.env.GRAYLOG2_PORT}],
         facility: 'auth0Logs',
-        bufferSize: process.env.GREYLOG2_BUFFERSIZE,
+        bufferSize: process.env.GRAYLOG2_BUFFERSIZE,
      },
     })
   ]
