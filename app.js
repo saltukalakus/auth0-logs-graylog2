@@ -21,7 +21,7 @@ if (String(process.env.GRAYLOG2_ENABLE).toLowerCase() == `false`) {
   grayLogDebugLevel  = 'error';
 } 
 
-// This basically disables the log to GREYLOG2
+// This basically disables the log to FILELOG
 if (String(process.env.FILELOG_ENABLE).toLowerCase() == `false`) {
   fileLogDebugLevel  = 'error';
 } 
