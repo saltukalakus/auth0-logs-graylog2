@@ -46,8 +46,7 @@ const logger = new (winston.Logger)({
       name: 'Graylog',
       level: grayLogDebugLevel,
       silent: false,
-      handleExceptions: true,
-      exceptionsLevel: 'debug',
+      handleExceptions: false,
       graylog: {
         servers: [{host: process.env.GRAYLOG2_HOST, port: process.env.GRAYLOG2_PORT}],
         facility: 'auth0Logs',
