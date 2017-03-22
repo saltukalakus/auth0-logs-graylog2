@@ -1,6 +1,9 @@
 # Auth0 - Logs to Winston Transport
 
-This project is a simple Node.js application which will take all of your Auth0 logs and exports them to `./logs/auth0.logs` in the same folder where this application runs.
+This project is a simple Node.js application which will take all of your Auth0 logs and exports them to enabled exports. Currently it supports following exports;
+
+* FileLog => Stores in `./logs/auth0.logs` in the same folder where this application runs.
+* GrayLog2 => Stores in GrayLog2 server.
 
 ## Configure
 * Install Node.js and Npm in your local environment if you haven't installed yet.
@@ -17,14 +20,14 @@ Note that, inorder to receive logs from Auth0, you need to set `read:logs` scope
     * START_FROM_ID : Set the log _id to start logging from a specific point in time. If you want to start from the beginning set `null`. Once the log file is created, application resumes from the last log in the log file.
     * POLLING_INTERVAL_IN_SEC : Interval where log API is polled in seconds.
     * TRACK_THE_LATEST_IN_SEC : When the logger reaches to the edge of the Auth0 logs, it makes extra delay before the next pass for Auth0 logs to be stabilised. Set this something like 600 seconds.
-    * GREYLOG2_HOST : Greylog2 server host name, E.g. 127.0.0.1
-    * GREYLOG2_PORT : Port for Greylog2 server.
-    * GREYLOG2_BUFFERSIZE : UDP packet size most of the time 1400 is OK.
-    * GREYLOG2_ENABLE : Setting this to `false` disables Greylog2 logging.
+    * GRAYLOG2_HOST : Greylog2 server host name, E.g. 127.0.0.1
+    * GRAYLOG2_PORT : Port for Greylog2 server.
+    * GRAYLOG2_BUFFERSIZE : UDP packet size most of the time 1400 is OK.
+    * GRAYLOG2_ENABLE : Setting this to `false` disables Graylog2 logging.
     * FILELOG_ENABLE : Setting this to `false` disables file logging.
 
 ## Limitations
-* Currently for Greylog2 transport this project supports one host to configure. If you need to set multiple hosts, you need to pass the host array manually in the code.
+* Currently for Graylog2 transport this project supports one host to configure. If you need to set multiple hosts, you need to pass the host array manually in the code.
 * Last stored log's id is not retrieved from transport, so if you restart the app, it will start from the first available log in Auth0 if `START_FROM_ID` is set as null.
 * You could use PM2 or Forever packages to run the application in production environments. However don't run multiple instance of the application in that case.
 
