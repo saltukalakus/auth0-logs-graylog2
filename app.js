@@ -50,7 +50,7 @@ const logger = new (winston.Logger)({
       graylog: {
         servers: [{host: process.env.GRAYLOG2_HOST, port: process.env.GRAYLOG2_PORT}],
         facility: 'auth0Logs',
-        bufferSize: process.env.GRAYLOG2_BUFFERSIZE,
+        bufferSize: parseInt(process.env.GRAYLOG2_BUFFERSIZE),
      },
     })
   ]
