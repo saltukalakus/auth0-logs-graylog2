@@ -29,7 +29,7 @@ Note that, inorder to receive logs from Auth0, you need to set `read:logs` scope
 ## Limitations
 * Currently for Graylog2 transport this project supports one host to configure. If you need to set multiple hosts, you need to pass the host array manually in the code.
 * Last stored log's id is not retrieved from transport, so if you restart the app, it will start from the first available log in Auth0 if `START_FROM_ID` is set as null.
-* You could use PM2 or Forever packages to run the application in production environments. However don't run multiple instance of the application in that case.
+* You could use PM2 or Forever packages to run the application in production environments. However note that you need to run single instance per your different environment setup. This is basically because multiple instances will not cooperate and share the load but will try to push the same logs to the transport.
 
 ## Usage
 ```bash
