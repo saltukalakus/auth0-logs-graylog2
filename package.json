@@ -13,6 +13,7 @@
     "memory-cache": "^0.1.6",
     "request": "^2.79.0",
     "sleep": "^5.1.0",
-    "winston": "^2.3.1"
+    "winston": "^2.3.1",
+    "winston-graylog2": "^0.6.0"
   }
 }

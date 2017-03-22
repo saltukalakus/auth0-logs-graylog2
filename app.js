@@ -1,33 +1,58 @@
 require('dotenv-safe').load();
-const path = require('path');
-const request = require("request");
-const cache = require('memory-cache');
+const path      = require('path');
+const request   = require("request");
+const cache     = require('memory-cache');
 const winston   = require('winston');
 const fs        = require('fs');
 const sleep     = require('sleep');
+const graylog2  = require('winston-graylog2');
 
 // TODO: These could also be .env variables
 const logDir       = 'logs';
 const logFile      = 'auth0.log';
 const TenHours     = 10*60*60; //In sec, max token refresh period
 
-// Store last log id for recover in restarts.
-// This is an implementation detail and 
-// no need to be .env var
-const lastLogIdFile    = '.lastLogIdFile'; 
+// Some variables which are just an implementation detail
+const lastLogIdFile      = '.lastLogId'; 
+var   grayLogDebugLevel  = 'info';
+var   fileLogDebugLevel  = 'info';
+
+// This basically disables the log to GREYLOG2
+if (String(process.env.GREYLOG2_ENABLE).toLowerCase() == `false`) {
+  grayLogDebugLevel  = 'error';
+} 
+
+// This basically disables the log to GREYLOG2
+if (String(process.env.FILELOG_ENABLE).toLowerCase() == `false`) {
+  fileLogDebugLevel  = 'error';
+} 
 
 // Create the log directory if it does not exist
-if (!fs.existsSync(logDir)) {
+if (!fs.existsSync(logDir) && fileLogDebugLevel == `info`) {
   fs.mkdirSync(logDir);
 }
 
 const logger = new (winston.Logger)({
   transports: [
+    // Log to file winston settings
     new (winston.transports.File)({
       filename: `${logDir}/${logFile}`,
       timestamp: false,
       prettyPrint: true,
-      level: 'info'
+      level: fileLogDebugLevel
+    }),
+    // Greylog2 winston settings
+    // https://www.npmjs.com/package/winston-graylog2
+    new(graylog2)({
+      name: 'Graylog',
+      level: grayLogDebugLevel,
+      silent: false,
+      handleExceptions: true,
+      graylog: {
+        servers: [{host: process.env.GREYLOG2_HOST, port: process.env.GREYLOG2_PORT}],
+        facility: 'auth0Logs',
+        bufferSize: process.env.GREYLOG2_BUFFERSIZE,
+     },
     })
   ]
 });
@@ -50,8 +75,7 @@ function getManagementToken(cb) {
     console.log("Getting a new API v2 token for Logger");
     request(options, function (error, response, body) {
       if (error) {
-        console.log(error);
-        throw new Error(error);
+        return cb(error);
       }
       var cacheTimeout = parseInt(body.expires_in) > TenHours ? TenHours : parseInt(body.expires_in);
       cache.put(process.env.AUTH0_CLIENT_ID, body, cacheTimeout*1000);
@@ -110,13 +134,6 @@ function saveLogs(logs){
   var numberOfLogs = cache.get("AUTH0NumberOfLogs");
   if (!numberOfLogs) numberOfLogs = 0;
   
-  // Discard last 10 
-  if (logs.length > 10) {
-    logs = logs.slice(0, logs.length - 10);
-  } else {
-    console.log('No enough logs to write!');
-    return;
-  }
   numberOfLogs += logs.length;
   cache.put("AUTH0NumberOfLogs", numberOfLogs);
           
@@ -128,6 +145,7 @@ function saveLogs(logs){
 
   // write to transport
   for (log in logs) {
+    fs.writeFileSync('./'+lastLogIdFile, JSON.stringify(logs[log]));
     logger.info(logs[log]);
   }
   console.log('Write complete.');
@@ -144,12 +162,12 @@ function transferLogs (accessToken) {
   // Get the last log received from cache
   var checkpointId = cache.get("AUTH0CheckpointID");
 
-  // If cache doesn't have the last log id, check to see if log file
+  // If cache doesn't have the last log id, check to see if lastLogIdFile
   // exists and get the last log's _id from the log file.
   if (!checkpointId) {
-    if (fs.existsSync(logDir + '/' + logFile)) {
+    if (fs.existsSync('./'+lastLogIdFile)) {
         console.log("GET CHECKPOINT FROM FILE.........");
-        var buf = fs.readFileSync(logDir + '/' + logFile, "utf8");
+        var buf = fs.readFileSync('./'+lastLogIdFile, "utf8");
         var re = /(\"_id\":\"(.*?)\")/g;
         var matches = buf.match(re);
         
@@ -198,6 +216,7 @@ setInterval(function() {
     cache.put("GetNextBatchCompleted", false);
     getManagementToken(function(err, resp) {
       if (err) {
+        cache.put("GetNextBatchCompleted", true);
         return console.log(err); 
       }
       console.log("Run in loop");
