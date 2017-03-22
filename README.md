@@ -17,7 +17,7 @@ Note that, inorder to receive logs from Auth0, you need to set `read:logs` scope
     * START_FROM_ID : Set the log _id to start logging from a specific point in time. If you want to start from the beginning set `null`. Once the log file is created, application resumes from the last log in the log file.
     * POLLING_INTERVAL_IN_SEC : Interval where log API is polled in seconds.
     * TRACK_THE_LATEST_IN_SEC : When the logger reaches to the edge of the Auth0 logs, it makes extra delay before the next pass for Auth0 logs to be stabilised. Set this something like 600 seconds.
-    * GREYLOG2_HOST : Greylog2 server host name, E.g. localhost.
+    * GREYLOG2_HOST : Greylog2 server host name, E.g. 127.0.0.1
     * GREYLOG2_PORT : Port for Greylog2 server.
     * GREYLOG2_BUFFERSIZE : UDP packet size most of the time 1400 is OK.
     * GREYLOG2_ENABLE : Setting this to `false` to disable Greylog2 logging.

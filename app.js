@@ -13,7 +13,6 @@ const logFile      = 'auth0.log';
 const TenHours     = 10*60*60; //In sec, max token refresh period
 
 // Some variables which are just an implementation detail
-const lastLogIdFile      = '.lastLogId'; 
 var   grayLogDebugLevel  = 'info';
 var   fileLogDebugLevel  = 'info';
 
@@ -48,6 +47,7 @@ const logger = new (winston.Logger)({
       level: grayLogDebugLevel,
       silent: false,
       handleExceptions: true,
+      exceptionsLevel: 'debug',
       graylog: {
         servers: [{host: process.env.GREYLOG2_HOST, port: process.env.GREYLOG2_PORT}],
         facility: 'auth0Logs',
@@ -145,7 +145,6 @@ function saveLogs(logs){
 
   // write to transport
   for (log in logs) {
-    fs.writeFileSync('./'+lastLogIdFile, JSON.stringify(logs[log]));
     logger.info(logs[log]);
   }
   console.log('Write complete.');
@@ -161,24 +160,6 @@ function isTheLatestLogVeryNew(log){
 function transferLogs (accessToken) {
   // Get the last log received from cache
   var checkpointId = cache.get("AUTH0CheckpointID");
-
-  // If cache doesn't have the last log id, check to see if lastLogIdFile
-  // exists and get the last log's _id from the log file.
-  if (!checkpointId) {
-    if (fs.existsSync('./'+lastLogIdFile)) {
-        console.log("GET CHECKPOINT FROM FILE.........");
-        var buf = fs.readFileSync('./'+lastLogIdFile, "utf8");
-        var re = /(\"_id\":\"(.*?)\")/g;
-        var matches = buf.match(re);
-        
-        // matches.length is the current number of logs in the file
-        cache.put("AUTH0NumberOfLogs", matches.length);
-        
-        // Get the log _id and set as last log position
-        var re2 = /[0-9]+/g;
-        checkpointId = matches[matches.length-1].match(re2)[0];
-    }
-  }
 
   // If last log's _id is not available in the cache and log file is not created yet
   // use the env variable for log _id otherwise first log id is null which forces the 
