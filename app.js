@@ -1,4 +1,6 @@
-require('dotenv-safe').load();
+require('dotenv-safe').load({
+  allowEmptyValues: true
+});
 const path      = require('path');
 const request   = require("request");
 const cache     = require('memory-cache');
@@ -13,8 +15,11 @@ const logFile      = 'auth0.log';
 const TenHours     = 10*60*60; //In sec, max token refresh period
 
 // Some variables which are just an implementation detail
-var   grayLogDebugLevel  = 'info';
-var   fileLogDebugLevel  = 'info';
+var grayLogDebugLevel  = 'info';
+var fileLogDebugLevel  = 'info';
+var filterClientArray  = String(process.env.FILTER_CLIENTS_WITH_ID).split(",").map(function(item) {
+  return item.trim();
+});
 
 // This basically disables the log to GREYLOG2
 if (String(process.env.GRAYLOG2_ENABLE).toLowerCase() == `false`) {
@@ -43,7 +48,7 @@ const logger = new (winston.Logger)({
     // Greylog2 winston settings
     // https://www.npmjs.com/package/winston-graylog2
     new(graylog2)({
-      name: 'Graylog',
+      name: process.env.GRAYLOG2_NAME,
       level: grayLogDebugLevel,
       silent: false,
       handleExceptions: false,
@@ -51,7 +56,8 @@ const logger = new (winston.Logger)({
         servers: [{host: process.env.GRAYLOG2_HOST, port: process.env.GRAYLOG2_PORT}],
         facility: 'auth0Logs',
         bufferSize: parseInt(process.env.GRAYLOG2_BUFFERSIZE),
-     },
+      },
+      staticMeta: process.env.GRAYLOG2_STATIC_META
     })
   ]
 });
@@ -75,6 +81,9 @@ function getManagementToken(cb) {
     request(options, function (error, response, body) {
       if (error) {
         return cb(error);
+      }
+      if (body.error){
+        return cb(body);
       }
       var cacheTimeout = parseInt(body.expires_in) > TenHours ? TenHours : parseInt(body.expires_in);
       cache.put(process.env.AUTH0_CLIENT_ID, body, cacheTimeout*1000);
@@ -110,42 +119,31 @@ function getLogs(domain, token, take, from, cb) {
   });
 }
 
-function arraysEqual(arr1, arr2) {
-    if(arr1.length !== arr2.length) {
-      console.log("2. pass number of logs not equal");
-      return false;
-    }
-        
-    for(var i = arr1.length; i--;) {
-        if(String(arr1[i]) !== String(arr2[i]))
-        {
-          console.log("Not matched in " + i);
-          console.dir(arr1[i]);
-          console.dir(arr2[i]);
-          return false;
-        }          
-    }
-
-    return true;
-}
-
 function saveLogs(logs){
   var numberOfLogs = cache.get("AUTH0NumberOfLogs");
   if (!numberOfLogs) numberOfLogs = 0;
   
-  numberOfLogs += logs.length;
+  // write to transport
+  var logsStored = 0;
+  for (log in logs) {
+    var logThisClient = false;
+    for (item in filterClientArray) {
+      if (JSON.stringify(logs[log]).indexOf(filterClientArray[item]) !== -1 ) logThisClient = true;
+    }
+    if (logThisClient) {
+      logger.info(logs[log]);
+      logsStored += 1;
+    }
+  }
+  numberOfLogs += logsStored;
   cache.put("AUTH0NumberOfLogs", numberOfLogs);
           
-  console.log("New logs: " + logs.length);
+  console.log("New logs: " + logsStored);
   console.log("Total logs: " + numberOfLogs);
 
   // Put the newest log entry we will log to transport
   cache.put("AUTH0CheckpointID", logs[logs.length - 1]._id);
 
-  // write to transport
-  for (log in logs) {
-    logger.info(logs[log]);
-  }
   console.log('Write complete.');
 }
 
