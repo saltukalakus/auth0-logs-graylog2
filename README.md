@@ -13,21 +13,21 @@ Note that, inorder to receive logs from Auth0, you need to set `read:logs` scope
 
 * Copy .env.example as .env in the same folder. Update the .env for your Auth0 Logger client created in the previous step.
 
-    * AUTH0_CLIENT_ID : Your Auth0 client ID for Logger.
-    * AUTH0_CLIENT_SECRET : Your Auth0 client secret for Logger.
-    * AUTH0_DOMAIN : Your Auth0 account domain. YOUR_DOMAIN.auth0.com or YOUR_DOMAIN.(au|eu).auth0.com 
-    * BATCH_SIZE : Batch size to request logs in single API call. Set to 100 which is the default value.
-    * START_FROM_ID : Set the log _id to start logging from a specific point in time. If you want to start from the beginning set `null`. Once the log file is created, application resumes from the last log in the log file.
-    * POLLING_INTERVAL_IN_SEC : Interval where log API is polled in seconds.
-    * TRACK_THE_LATEST_IN_SEC : When the logger reaches to the edge of the Auth0 logs, it makes extra delay before the next pass for Auth0 logs to be stabilised. Set this something like 600 seconds.
-    * FILTER_CLIENTS_WITH_ID : Leave it blank if you want all clients in the logs. Otherwise add client IDs separated with comma. Check `.env.example` for a sample usage.
-    * GRAYLOG2_NAME : Graylog2 transport name. Check https://www.npmjs.com/package/winston-graylog2 for Graylog options.
-    * GRAYLOG2_HOST : Graylog2 server host name, E.g. 127.0.0.1
-    * GRAYLOG2_PORT : Port for Graylog2 server.
-    * GRAYLOG2_BUFFERSIZE : UDP packet size most of the time 1400 is OK.
-    * GRAYLOG2_ENABLE : Setting this to `false` disables Graylog2 logging.
-    * GRAYLOG2_STATIC_META: Meta data to be always used by each logging message.
-    * FILELOG_ENABLE : Setting this to `false` disables file logging.
+    * <b>AUTH0_CLIENT_ID</b> : Your Auth0 client ID for Logger.
+    * <b>AUTH0_CLIENT_SECRET</b> : Your Auth0 client secret for Logger.
+    * <b>AUTH0_DOMAIN</b> : Your Auth0 account domain. YOUR_DOMAIN.auth0.com or YOUR_DOMAIN.(au|eu).auth0.com 
+    * <b>BATCH_SIZE</b> : Batch size to request logs in single API call. Set to 100 which is the default value.
+    * <b>START_FROM_ID</b> : Set the log _id to start logging from a specific point in time. If you want to start from the beginning set `null`. Once the log file is created, application resumes from the last log in the log file.
+    * <b>POLLING_INTERVAL_IN_SEC</b> : Interval where log API is polled in seconds.
+    * <b>TRACK_THE_LATEST_IN_SEC</b> : When the logger reaches to the edge of the Auth0 logs, it makes extra delay before the next pass for Auth0 logs to be stabilised. Set this something like 600 seconds.
+    * <b>FILTER_CLIENTS_WITH_ID</b> : Leave it blank if you want all clients in the logs. Otherwise add client IDs separated with comma. Check `.env.example` for a sample usage.
+    * <b>GRAYLOG2_NAME</b> : Graylog2 transport name. Check https://www.npmjs.com/package/winston-graylog2 for Graylog options.
+    * <b>GRAYLOG2_HOST</b> : Graylog2 server host name, E.g. 127.0.0.1
+    * <b>GRAYLOG2_PORT</b> : Port for Graylog2 server.
+    * <b>GRAYLOG2_BUFFERSIZE</b> : UDP packet size most of the time 1400 is OK.
+    * <b>GRAYLOG2_ENABLE</b> : Setting this to `false` disables Graylog2 logging.
+    * <b>GRAYLOG2_STATIC_META</b> : Meta data to be always used by each logging message.
+    * <b>FILELOG_ENABLE</b> : Setting this to `false` disables file logging.
 
 ## Limitations
 * Currently for Graylog2 transport this project supports one host to configure. If you need to set multiple hosts, you need to pass the host array manually in the code.
