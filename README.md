@@ -20,7 +20,7 @@ Note that, inorder to receive logs from Auth0, you need to set `read:logs` scope
     * START_FROM_ID : Set the log _id to start logging from a specific point in time. If you want to start from the beginning set `null`. Once the log file is created, application resumes from the last log in the log file.
     * POLLING_INTERVAL_IN_SEC : Interval where log API is polled in seconds.
     * TRACK_THE_LATEST_IN_SEC : When the logger reaches to the edge of the Auth0 logs, it makes extra delay before the next pass for Auth0 logs to be stabilised. Set this something like 600 seconds.
-    * FILTER CLIENTS WITH IDs i.e: 7Z6WTmeFYmLK0Hr7GwIXDyOKXRFFmUV1, yB2FbvhXyR4OWiSAAOk8lmRGfrsLNJm2, m45FbvhXyR4OWiSAAOk533RGfrsLNJm2 Leave it blank if you want all clients in the logs.
+    * FILTER_CLIENTS_WITH_ID : Leave it blank if you want all clients in the logs. Otherwise add client IDs separated with comma. Check `.env.example` for a sample usage.
     * GRAYLOG2_NAME : Graylog2 transport name. Check https://www.npmjs.com/package/winston-graylog2 for Graylog options.
     * GRAYLOG2_HOST : Graylog2 server host name, E.g. 127.0.0.1
     * GRAYLOG2_PORT : Port for Graylog2 server.
