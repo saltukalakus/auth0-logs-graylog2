@@ -1,15 +1,18 @@
-# Auth0 - Logs to Winston Transport
+# Auth0 - Logs to GrayLog2
 
-This project is a simple Node.js application which will take all of your Auth0 logs and exports them to enabled exports. Currently it supports following exports;
+This project is a simple Node.js application which will take all of your Auth0 logs and exports them to GrayLog2. 
 
-* FileLog => Stores in `./logs/auth0.logs` in the same folder where this application runs.
-* GrayLog2 => Stores in GrayLog2 server.
+For debug purposes you could also store to a local file if you enable FILELOG_ENABLE option.
+Note that storing to file is not meant to be used in production because it won't scale well.
+File log option stores in this path `./logs/auth0.logs` in the same folder where this application runs.
 
 ## Configure
 * Install Node.js and Npm in your local environment if you haven't installed yet.
 
 * Create a new client for your Logger as described [here](https://auth0.com/docs/api/management/v2/tokens#1-create-and-authorize-a-client).
 Note that, inorder to receive logs from Auth0, you need to set `read:logs` scope for this client.
+
+* In your GrayLog2 server create a new [HTTP GELF endpoint](http://docs.graylog.org/en/2.2/pages/sending_data.html#gelf-via-http). 
 
 * Copy .env.example as .env in the same folder. Update the .env for your Auth0 Logger client created in the previous step.
 
@@ -21,16 +24,12 @@ Note that, inorder to receive logs from Auth0, you need to set `read:logs` scope
     * <b>POLLING_INTERVAL_IN_SEC</b> : Interval where log API is polled in seconds.
     * <b>TRACK_THE_LATEST_IN_SEC</b> : When the logger reaches to the edge of the Auth0 logs, it makes extra delay before the next pass for Auth0 logs to be stabilised. Set this something like 600 seconds.
     * <b>FILTER_CLIENTS_WITH_ID</b> : Leave it blank if you want all clients in the logs. Otherwise add client IDs separated with comma. Check `.env.example` for a sample usage.
-    * <b>GRAYLOG2_NAME</b> : Graylog2 transport name. Check https://www.npmjs.com/package/winston-graylog2 for Graylog options.
     * <b>GRAYLOG2_HOST</b> : Graylog2 server host name, E.g. 127.0.0.1
     * <b>GRAYLOG2_PORT</b> : Port for Graylog2 server.
-    * <b>GRAYLOG2_BUFFERSIZE</b> : UDP packet size most of the time 1400 is OK.
-    * <b>GRAYLOG2_ENABLE</b> : Setting this to `false` disables Graylog2 logging.
-    * <b>GRAYLOG2_STATIC_META</b> : Meta data to be always used by each logging message.
+    * <b>GRAYLOG2_META</b> : Static meta data for each log message.
     * <b>FILELOG_ENABLE</b> : Setting this to `false` disables file logging.
 
 ## Limitations
-* Currently for Graylog2 transport this project supports one host to configure. If you need to set multiple hosts, you need to pass the host array manually in the code.
 * Last stored log's id is not retrieved from transport, so if you restart the app, it will start from the first available log in Auth0 if `START_FROM_ID` is set as null.
 * You could use PM2 or Forever packages to run the application in production environments. However note that you need to run single instance per your different environment setup. This is basically because multiple instances will not cooperate and share the load but will try to push the same logs to the transport.
 

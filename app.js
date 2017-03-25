@@ -7,7 +7,6 @@ const cache     = require('memory-cache');
 const winston   = require('winston');
 const fs        = require('fs');
 const sleep     = require('sleep');
-const graylog2  = require('winston-graylog2');
 
 // TODO: These could also be .env variables
 const logDir       = 'logs';
@@ -15,16 +14,10 @@ const logFile      = 'auth0.log';
 const TenHours     = 10*60*60; //In sec, max token refresh period
 
 // Some variables which are just an implementation detail
-var grayLogDebugLevel  = 'info';
 var fileLogDebugLevel  = 'info';
 var filterClientArray  = String(process.env.FILTER_CLIENTS_WITH_ID).split(",").map(function(item) {
   return item.trim();
 });
-
-// This basically disables the log to GREYLOG2
-if (String(process.env.GRAYLOG2_ENABLE).toLowerCase() == `false`) {
-  grayLogDebugLevel  = 'error';
-} 
 
 // This basically disables the log to FILELOG
 if (String(process.env.FILELOG_ENABLE).toLowerCase() == `false`) {
@@ -44,20 +37,6 @@ const logger = new (winston.Logger)({
       timestamp: false,
       prettyPrint: true,
       level: fileLogDebugLevel
-    }),
-    // Greylog2 winston settings
-    // https://www.npmjs.com/package/winston-graylog2
-    new(graylog2)({
-      name: process.env.GRAYLOG2_NAME,
-      level: grayLogDebugLevel,
-      silent: false,
-      handleExceptions: false,
-      graylog: {
-        servers: [{host: process.env.GRAYLOG2_HOST, port: process.env.GRAYLOG2_PORT}],
-        facility: 'auth0Logs',
-        bufferSize: parseInt(process.env.GRAYLOG2_BUFFERSIZE),
-      },
-      staticMeta: process.env.GRAYLOG2_STATIC_META
     })
   ]
 });
@@ -119,32 +98,34 @@ function getLogs(domain, token, take, from, cb) {
   });
 }
 
+
 function saveLogs(logs){
-  var numberOfLogs = cache.get("AUTH0NumberOfLogs");
-  if (!numberOfLogs) numberOfLogs = 0;
-  
-  // write to transport
-  var logsStored = 0;
+  // Put the last log entry we will continue to log
+  cache.put("AUTH0CheckpointID", logs[logs.length - 1]._id);
+
   for (log in logs) {
     var logThisClient = false;
     for (item in filterClientArray) {
       if (JSON.stringify(logs[log]).indexOf(filterClientArray[item]) !== -1 ) logThisClient = true;
     }
     if (logThisClient) {
-      logger.info(logs[log]);
-      logsStored += 1;
+      var saveOptions = { method: 'POST',
+      url: 'http://' + process.env.GRAYLOG2_HOST + ':' + process.env.GRAYLOG2_PORT+ '/gelf',
+      headers: { 'content-type': 'application/json' },
+      body: 
+      { "meta":process.env.GRAYLOG2_META, "short_message": JSON.stringify(logs[log])},
+      json: true };
+      request(options, function (error, response, body) {
+        if (error) {
+          console.log(error);
+        }
+        if (body && body.error){
+          console.log(body.error);
+        }
+        logger.info(logs[log]);
+      });
     }
   }
-  numberOfLogs += logsStored;
-  cache.put("AUTH0NumberOfLogs", numberOfLogs);
-          
-  console.log("New logs: " + logsStored);
-  console.log("Total logs: " + numberOfLogs);
-
-  // Put the newest log entry we will log to transport
-  cache.put("AUTH0CheckpointID", logs[logs.length - 1]._id);
-
-  console.log('Write complete.');
 }
 
 function isTheLatestLogVeryNew(log){
