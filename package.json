@@ -1,7 +1,7 @@
 {
-  "name": "auth0-logs-transport",
+  "name": "auth0-logs-graylog2",
   "version": "1.0.0",
-  "description": "Auth0 logs to a winston transport",
+  "description": "Auth0 logs to Graylog2 server",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
