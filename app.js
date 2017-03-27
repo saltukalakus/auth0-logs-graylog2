@@ -109,21 +109,19 @@ function saveLogs(logs){
       if (JSON.stringify(logs[log]).indexOf(filterClientArray[item]) !== -1 ) logThisClient = true;
     }
     if (logThisClient) {
-      var saveOptions = { method: 'POST',
-      url: 'http://' + process.env.GRAYLOG2_HOST + ':' + process.env.GRAYLOG2_PORT+ '/gelf',
-      headers: { 'content-type': 'application/json' },
-      body: 
-      { "meta":process.env.GRAYLOG2_META, "short_message": JSON.stringify(logs[log])},
-      json: true };
-      request(options, function (error, response, body) {
-        if (error) {
-          console.log(error);
+      var logToSend =  JSON.stringify(logs[log]).replace(/\"/g,'\\"');
+      var logMeta = String(process.env.GRAYLOG2_META).replace(/\"/g,'\\"');
+      var sendString = '{"short_message":"' + logToSend + '", "meta":"' + logMeta + '"}';
+      var body = {url:'http://' + process.env.GRAYLOG2_HOST + ':' + process.env.GRAYLOG2_PORT+ '/gelf',
+                 form : sendString};
+
+      request.post(body,
+        function(err, resp, body) {
+          if (err) console.log(err);
+          if (body && body.error) console.log(body.error);
+          logger.info(logs[log]);
         }
-        if (body && body.error){
-          console.log(body.error);
-        }
-        logger.info(logs[log]);
-      });
+      );
     }
   }
 }
