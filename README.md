@@ -16,8 +16,8 @@ Note that, inorder to receive logs from Auth0, you need to set `read:logs` scope
 
 * Copy .env.example as .env in the same folder. Update the .env for your Auth0 Logger client created in the previous step.
 
-    * <b>AUTH0_CLIENT_ID</b> : Your Auth0 client ID for Logger.
-    * <b>AUTH0_CLIENT_SECRET</b> : Your Auth0 client secret for Logger.
+    * <b>AUTH0_CLIENT_ID</b> : Your Auth0 Logger API client ID.
+    * <b>AUTH0_CLIENT_SECRET</b> : Your Auth0 Logger API client secret.
     * <b>AUTH0_DOMAIN</b> : Your Auth0 account domain. YOUR_DOMAIN.auth0.com or YOUR_DOMAIN.(au|eu).auth0.com 
     * <b>BATCH_SIZE</b> : Batch size to request logs in single API call. Set to 100 which is the default value.
     * <b>START_FROM_ID</b> : Set the log _id to start logging from a specific point in time. If you want to start from the beginning set `null`. Once the log file is created, application resumes from the last log in the log file.
@@ -26,7 +26,7 @@ Note that, inorder to receive logs from Auth0, you need to set `read:logs` scope
     * <b>FILTER_CLIENTS_WITH_ID</b> : Leave it blank if you want all clients in the logs. Otherwise add client IDs separated with comma. Check `.env.example` for a sample usage.
     * <b>GRAYLOG2_HOST</b> : Graylog2 server host name, E.g. 127.0.0.1 for HTTP Gelf endpoint.
     * <b>GRAYLOG2_PORT</b> : Graylog2 server port for HTTP Gelf endpoint.
-    * <b>GRAYLOG2_META</b> : Static meta data for each log message.
+    * <b>GRAYLOG2_META</b> : Optional static meta you may want to add for each log message.
     * <b>FILELOG_ENABLE</b> : Setting this to `false` disables file logging.
 
 ## Limitations
