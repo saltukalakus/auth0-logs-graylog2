@@ -115,10 +115,13 @@ function saveLogs(logs){
       var body = {url:'http://' + process.env.GRAYLOG2_HOST + ':' + process.env.GRAYLOG2_PORT+ '/gelf',
                  form : sendString};
 
+      // Prevent too much TCP connections
+      sleep.msleep(150);
+
       request.post(body,
         function(err, resp, body) {
-          if (err) console.log(err);
-          if (body && body.error) console.log(body.error);
+          if (err) console.log("ERR 1: " + err);
+          if (body && body.error) console.log("ERR 2: " + body.error);
           logger.info(logs[log]);
         }
       );
