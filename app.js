@@ -14,6 +14,7 @@ const logFile      = 'auth0.log';
 const TenHours     = 10*60*60; //In sec, max token refresh period
 
 // Some variables which are just an implementation detail
+var logCount = 0;
 var fileLogDebugLevel  = 'info';
 var filterClientArray  = String(process.env.FILTER_CLIENTS_WITH_ID).split(",").map(function(item) {
   return item.trim();
@@ -122,7 +123,9 @@ function saveLogs(logs){
         function(err, resp, body) {
           if (err) console.log("ERR 1: " + err);
           if (body && body.error) console.log("ERR 2: " + body.error);
-          logger.info(logs[log]);
+          logger.info(sendString);
+          logCount += 1;
+          logger.info("##### Log Count : " + logCount);
         }
       );
     }
