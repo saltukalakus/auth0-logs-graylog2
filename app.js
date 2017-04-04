@@ -123,9 +123,8 @@ function saveLogs(logs){
         function(err, resp, body) {
           if (err) console.log("ERR 1: " + err);
           if (body && body.error) console.log("ERR 2: " + body.error);
-          logger.info(sendString);
+          logger.info(logs[log]);
           logCount += 1;
-          logger.info("##### Log Count : " + logCount);
         }
       );
     }
@@ -149,7 +148,7 @@ function transferLogs (accessToken) {
   var startFromId = process.env.START_FROM_ID ? process.env.START_FROM_ID : null;
   var startCheckpointId = checkpointId === null ? startFromId : checkpointId;
   console.log("Log position : " + startCheckpointId);
-
+  console.log("Total Log Count : " + logCount);
   var take = parseInt(process.env.BATCH_SIZE);
   take = take ? take : 100;
 
