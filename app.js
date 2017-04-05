@@ -14,6 +14,7 @@ const logFile      = 'auth0.log';
 const TenHours     = 10*60*60; //In sec, max token refresh period
 
 // Some variables which are just an implementation detail
+const lastLogIdFile      = '.lastLogId'; 
 var logCount = 0;
 var fileLogDebugLevel  = 'info';
 var filterClientArray  = String(process.env.FILTER_CLIENTS_WITH_ID).split(",").map(function(item) {
@@ -120,6 +121,7 @@ function saveLogs(logs){
       sleep.msleep(150);
       
       logger.info(logs[log]);
+      fs.writeFileSync('./'+lastLogIdFile, JSON.stringify(logs[log]));
       request.post(body,
         function(err, resp, body) {
           if (err) console.log("ERR 1: " + err);
@@ -141,6 +143,19 @@ function isTheLatestLogVeryNew(log){
 function transferLogs (accessToken) {
   // Get the last log received from cache
   var checkpointId = cache.get("AUTH0CheckpointID");
+
+  if (!checkpointId) {		
+    if (fs.existsSync('./'+lastLogIdFile)) {		
+      console.log("GET CHECKPOINT FROM FILE.........");		
+      var buf = fs.readFileSync('./'+lastLogIdFile, "utf8");		
+      var re = /(\"_id\":\"(.*?)\")/g;		
+      var matches = buf.match(re);
+
+     // Get the log _id and set as last log position		
+     var re2 = /[0-9]+/g;		
+     checkpointId = matches[matches.length-1].match(re2)[0];		
+   }		
+  }		
 
   // If last log's _id is not available in the cache and log file is not created yet
   // use the env variable for log _id otherwise first log id is null which forces the 
