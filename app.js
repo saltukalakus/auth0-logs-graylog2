@@ -14,7 +14,13 @@ const logFile      = 'auth0.log';
 const TenHours     = 10*60*60; //In sec, max token refresh period
 
 // Some variables which are just an implementation detail
+
+// TODO: lastLogIdFile stores the last log position sent to server
+// So that when server restarts it starts from the last log sent. 
+// Instead of storing this in a file send this value to a database like
+// MongoDB
 const lastLogIdFile      = '.lastLogId'; 
+
 var logCount = 0;
 var fileLogDebugLevel  = 'info';
 var filterClientArray  = String(process.env.FILTER_CLIENTS_WITH_ID).split(",").map(function(item) {
