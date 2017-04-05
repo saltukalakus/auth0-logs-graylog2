@@ -117,8 +117,8 @@ function saveLogs(logs){
       if (JSON.stringify(logs[log]).indexOf(filterClientArray[item]) !== -1 ) logThisClient = true;
     }
     if (logThisClient) {
-      var logToSend =  JSON.stringify(logs[log]).replace(/\"/g,'\\"');
-      var logMeta = String(process.env.GRAYLOG2_META).replace(/\"/g,'\\"');
+      var logToSend =  JSON.stringify(logs[log]).replace(/\\/g, '\\\\').replace(/\"/g,'\\"');
+      var logMeta = String(process.env.GRAYLOG2_META).replace(/\\/g, '\\\\').replace(/\"/g,'\\"');
       var sendString = '{"short_message":"' + logToSend + '", "meta":"' + logMeta + '"}';
       var body = {url:'http://' + process.env.GRAYLOG2_HOST + ':' + process.env.GRAYLOG2_PORT+ '/gelf',
                  form : sendString};
