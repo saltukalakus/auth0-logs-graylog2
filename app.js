@@ -118,12 +118,12 @@ function saveLogs(logs){
 
       // Prevent too much TCP connections
       sleep.msleep(150);
-
+      
+      logger.info(logs[log]);
       request.post(body,
         function(err, resp, body) {
           if (err) console.log("ERR 1: " + err);
           if (body && body.error) console.log("ERR 2: " + body.error);
-          logger.info(logs[log]);
           logCount += 1;
         }
       );
